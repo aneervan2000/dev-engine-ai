@@ -13,6 +13,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -48,16 +49,39 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public ProjectResponse getUserProjectById(Long id, Long userId) {
-        return null;
+        Project project = getAccessibleProjectById(id, userId);
+        return projectMapper.toProjectResponse(project);
     }
 
     @Override
     public ProjectResponse updateProject(Long id, ProjectRequest request, Long userId) {
-        return null;
+        Project project = getAccessibleProjectById(id, userId);
+
+        if (!project.getOwner().getId().equals(userId)) {
+            throw new RuntimeException("You are not allowed to update the name.");
+        }
+
+        project.setName(request.name());
+        project = projectRepository.save(project); // optional, as within a transaction, changes are auto-detected
+
+        return projectMapper.toProjectResponse(project);
     }
 
     @Override
     public void softDelete(Long id, Long userId) {
+        Project project = getAccessibleProjectById(id, userId);
 
+        if (!project.getOwner().getId().equals(userId)) {
+            throw new RuntimeException("You are not allowed to delete.");
+        }
+
+        project.setDeletedAt(Instant.now());
+        projectRepository.save(project);
+
+    }
+
+    // INTERNAL METHODS
+    private Project getAccessibleProjectById(Long projectId, Long userId) {
+        return projectRepository.findAccessibleProjectById(projectId, userId).orElseThrow();
     }
 }
