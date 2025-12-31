@@ -16,6 +16,11 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.List;
 
+/**
+ * Implementation of the ProjectService interface.
+ * Provides the business logic for managing projects.
+ * Uses repositories and mappers to interact with the database and convert entities to DTOs.
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -25,6 +30,9 @@ public class ProjectServiceImpl implements ProjectService {
     private final UserRepository userRepository;
     private final ProjectMapper projectMapper;
 
+    /**
+     * {@inheritDoc}
+     */
     // Logic to create a new project
     @Override
     public ProjectResponse createProject(ProjectRequest request, Long userId) {
@@ -40,6 +48,9 @@ public class ProjectServiceImpl implements ProjectService {
         return projectMapper.toProjectResponse(project);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     // Logic to get all projects for a user along with the project in which the user is member.
     @Override
     public List<ProjectSummaryResponse> getUserProjects(Long userId) {
@@ -47,12 +58,18 @@ public class ProjectServiceImpl implements ProjectService {
         return projectMapper.toListOfProjectSummaryResponse(projects);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public ProjectResponse getUserProjectById(Long id, Long userId) {
         Project project = getAccessibleProjectById(id, userId);
         return projectMapper.toProjectResponse(project);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public ProjectResponse updateProject(Long id, ProjectRequest request, Long userId) {
         Project project = getAccessibleProjectById(id, userId);
@@ -67,6 +84,9 @@ public class ProjectServiceImpl implements ProjectService {
         return projectMapper.toProjectResponse(project);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void softDelete(Long id, Long userId) {
         Project project = getAccessibleProjectById(id, userId);
@@ -80,6 +100,13 @@ public class ProjectServiceImpl implements ProjectService {
 
     }
 
+    /**
+     * Retrieves a project accessible by a specific user.
+     *
+     * @param projectId the ID of the project
+     * @param userId the ID of the user
+     * @return the Project entity
+     */
     // INTERNAL METHODS
     private Project getAccessibleProjectById(Long projectId, Long userId) {
         return projectRepository.findAccessibleProjectById(projectId, userId).orElseThrow();

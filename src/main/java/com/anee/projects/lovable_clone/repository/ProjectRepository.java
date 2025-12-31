@@ -9,10 +9,21 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Repository interface for managing Project entities.
+ * Provides methods to interact with the database for project data.
+ */
+
 // No implementation needed; Spring Data JPA provides it automatically SimpleJpaRepository
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, Long> {
 
+    /**
+     * Retrieves all projects accessible by a specific user.
+     *
+     * @param userId the ID of the user
+     * @return a list of accessible Project entities
+     */
     @Query("""
             SELECT p FROM Project p
             WHERE p.deletedAt IS NULL
@@ -21,6 +32,13 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
             """)
     List<Project> findAllccessibleByUserId(@Param("userId") Long userId);
 
+    /**
+     * Retrieves an accessible project by its ID and the user's ID.
+     *
+     * @param projectId the ID of the project
+     * @param userId    the ID of the user
+     * @return an Optional containing the accessible Project entity
+     */
     @Query("""
             SELECT p FROM Project p
             LEFT JOIN FETCH p.owner

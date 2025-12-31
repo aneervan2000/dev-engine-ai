@@ -7,8 +7,18 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+/**
+ * Repository interface for managing ProjectMember entities.
+ * Provides methods to interact with the database for project member data.
+ */
 @Repository
 public interface ProjectMemberRepository extends JpaRepository<ProjectMember, ProjectMemberId> {
 
+    /**
+     * Retrieves a list of project members by the project ID.
+     *
+     * @param projectId the ID of the project
+     * @return a list of ProjectMember entities
+     */
     List<ProjectMember> findByIdProjectId(Long projectId);
 }

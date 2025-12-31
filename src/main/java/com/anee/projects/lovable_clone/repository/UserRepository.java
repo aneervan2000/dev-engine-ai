@@ -6,9 +6,18 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-
+/**
+ * Repository interface for managing User entities.
+ * Provides methods to interact with the database for user data.
+ */
 // No implementation needed; Spring Data JPA provides it automatically SimpleJpaRepository
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
+    /**
+     * Retrieves a user by their email address.
+     *
+     * @param email the email address of the user
+     * @return an Optional containing the User entity
+     */
     Optional<User> findByEmail(String email);
 }
