@@ -30,7 +30,7 @@ public interface ProjectMemberMapper {
      * @return the corresponding MemberResponse DTO
      */
     @Mapping(target = "userId", source = "user.id")
-    @Mapping(target = "email", source = "user.email")
+    @Mapping(target = "username", source = "user.username")
     @Mapping(target = "name", source = "user.name")
     MemberResponse toProjectMemberResponseFromMember(ProjectMember projectMember);
 }
