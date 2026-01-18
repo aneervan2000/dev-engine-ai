@@ -50,19 +50,19 @@ import java.time.Instant;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name = "projects")
+@Table(name = "projects",
+        indexes =  {
+            @Index(name = "index_projects_updated_at_desc", columnList = "updated_at DESC, deleted_at ASC"),
+            @Index(name = "index_projects_deleted_at", columnList = "deleted_at")
+        })
 public class Project {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     @Column(nullable = false) // project name cannot be null
     String name;
-
-
-    @ManyToOne // many projects can belong to one user
-    @JoinColumn(name = "owner_id", nullable = false) // whenever a project is created, it must have an owner
-    User owner;
 
     Boolean isPublic = false;
 
