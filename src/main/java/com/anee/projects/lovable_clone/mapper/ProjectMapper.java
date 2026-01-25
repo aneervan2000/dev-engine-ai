@@ -8,7 +8,8 @@ import org.mapstruct.Mapper;
 import java.util.List;
 
 /**
- * Mapper interface for converting Project entities to their corresponding DTOs.
+ * <h6>Mapper interface for converting Project entities to their corresponding DTOs.</h6>
+ *
  * Utilizes MapStruct to generate the implementation at compile time.
  * This mapper is used to transform Project entities into ProjectResponse and ProjectSummaryResponse objects.
  */

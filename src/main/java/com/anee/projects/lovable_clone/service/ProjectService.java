@@ -15,44 +15,39 @@ public interface ProjectService {
     /**
      * Retrieves all projects accessible by a specific user.
      *
-     * @param userId the ID of the user
      * @return a list of ProjectSummaryResponse
      */
-    List<ProjectSummaryResponse> getUserProjects(Long userId);
+    List<ProjectSummaryResponse> getUserProjects();
 
     /**
      * Retrieves a specific project by its ID for a specific user.
      *
      * @param id the ID of the project
-     * @param userId the ID of the user
      * @return the ProjectResponse
      */
-    ProjectResponse getUserProjectById(Long id, Long userId);
+    ProjectResponse getUserProjectById(Long id);
 
     /**
      * Creates a new project for a specific user.
      *
      * @param request the ProjectRequest containing project details
-     * @param userId the ID of the user
      * @return the created ProjectResponse
      */
-    ProjectResponse createProject(ProjectRequest request, Long userId);
+    ProjectResponse createProject(ProjectRequest request);
 
     /**
      * Updates an existing project for a specific user.
      *
      * @param id the ID of the project to update
      * @param request the ProjectRequest containing updated project details
-     * @param userId the ID of the user
      * @return the updated ProjectResponse
      */
-    ProjectResponse updateProject(Long id, ProjectRequest request, Long userId);
+    ProjectResponse updateProject(Long id, ProjectRequest request);
 
     /**
      * Soft deletes a project for a specific user.
      *
      * @param id the ID of the project to delete
-     * @param userId the ID of the user
      */
-    void softDelete(Long id, Long userId);
+    void softDelete(Long id);
 }

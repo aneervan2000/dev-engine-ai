@@ -16,20 +16,18 @@ public interface ProjectMemberService {
      * Retrieves the list of members for a specific project.
      *
      * @param projectId the ID of the project
-     * @param userId    the ID of the user making the request
      * @return a list of MemberResponse objects representing the project members
      */
-    List<MemberResponse> getProjectMembers(Long projectId, Long userId);
+    List<MemberResponse> getProjectMembers(Long projectId);
 
     /**
      * Invites a new member to the project.
      *
      * @param projectId the ID of the project
      * @param request   the invitation details (email and role)
-     * @param userId    the ID of the user making the request
      * @return a MemberResponse object representing the invited member
      */
-    MemberResponse inviteMember(Long projectId, InviteMemberRequest request, Long userId);
+    MemberResponse inviteMember(Long projectId, InviteMemberRequest request);
 
     /**
      * Updates the role of an existing project member.
@@ -37,17 +35,15 @@ public interface ProjectMemberService {
      * @param projectId the ID of the project
      * @param memberId  the ID of the member
      * @param request   the new role details
-     * @param userId    the ID of the user making the request
      * @return a MemberResponse object representing the updated member
      */
-    MemberResponse updateMemberRole(Long projectId, Long memberId, UpdateMemberRoleRequest request, Long userId);
+    MemberResponse updateMemberRole(Long projectId, Long memberId, UpdateMemberRoleRequest request);
 
     /**
      * Removes a member from the project.
      *
      * @param projectId the ID of the project
      * @param memberId  the ID of the member to be removed
-     * @param userId    the ID of the user making the request
      */
-    void removeProjectMember(Long projectId, Long memberId, Long userId);
+    void removeProjectMember(Long projectId, Long memberId);
 }

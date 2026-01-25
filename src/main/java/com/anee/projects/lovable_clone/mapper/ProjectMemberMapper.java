@@ -7,7 +7,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 /**
- * Mapper interface for converting ProjectMember and User entities to MemberResponse DTOs.
+ * <h6>Mapper interface for converting ProjectMember and User entities to MemberResponse DTOs.</h6>
  * Utilizes MapStruct to generate the implementation at compile time.
  */
 @Mapper(componentModel = "spring")
