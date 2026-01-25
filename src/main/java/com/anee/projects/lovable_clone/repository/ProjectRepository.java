@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Repository interface for managing Project entities.
+ * <h6>Repository interface for managing Project entities.</h6>
  * Provides methods to interact with the database for project data.
  */
 
@@ -19,7 +19,8 @@ import java.util.Optional;
 public interface ProjectRepository extends JpaRepository<Project, Long> {
 
     /**
-     * Retrieves all projects accessible by a specific user.
+     * Retrieves all projects accessible by a specific user,
+     * includes only projects that are not soft-deleted.
      *
      * @param userId the ID of the user
      * @return a list of accessible Project entities
@@ -27,12 +28,18 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     @Query("""
             SELECT p FROM Project p
             WHERE p.deletedAt IS NULL
+            AND EXISTS (
+                SELECT 1 FROM ProjectMember pm
+                WHERE pm.id.userId = :userId
+                AND pm.id.projectId = p.id
+            )
             ORDER BY p.updatedAt DESC
             """)
-    List<Project> findAllccessibleByUserId(@Param("userId") Long userId);
+    List<Project> findAllAccessibleByUserId(@Param("userId") Long userId);
 
     /**
-     * Retrieves an accessible project by its ID and the user's ID.
+     * Retrieves the accessible project by its ID and the user's ID.
+     * Includes only projects that are not soft-deleted.
      *
      * @param projectId the ID of the project
      * @param userId    the ID of the user
@@ -42,6 +49,11 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
             SELECT p FROM Project p
             WHERE p.id = :projectId
                 AND p.deletedAt IS NULL
+                AND EXISTS (
+                    SELECT 1 FROM ProjectMember pm
+                    WHERE pm.id.userId = :userId
+                    AND pm.id.projectId = :projectId
+                )
             """)
     Optional<Project> findAccessibleProjectById(@Param("projectId") Long projectId, @Param("userId") Long userId);
 }

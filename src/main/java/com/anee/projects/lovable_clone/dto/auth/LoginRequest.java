@@ -5,9 +5,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 /**
- * Request payload for user login.
+ * <h6>Request payload for user login.</h6>
  *
- * @param email    User's email address
+ * @param username    User's email address which must be a valid email format and not blank
  * @param password User's password
  */
 public record LoginRequest(

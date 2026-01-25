@@ -6,9 +6,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 /**
- * Data Transfer Object (DTO) for inviting a new member to a project.
+ * <h6>Data Transfer Object (DTO) for inviting a new member to a project.</h6>
  *
- * @param email the email address of the user to be invited
+ * @param username the email address of the user to be invited
  * @param role  the role to be assigned to the invited user
  */
 public record InviteMemberRequest(

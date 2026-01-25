@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 /**
- * Repository interface for managing ProjectMember entities.
+ * <h6>Repository interface for managing ProjectMember entities.</h6>
  * Provides methods to interact with the database for project member data.
  */
 @Repository

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * REST controller for managing projects.
+ * <h6>REST controller for managing projects.</h6>
  * Provides endpoints for creating, retrieving, updating, and deleting projects.
  * Delegates business logic to the ProjectService.
  */
@@ -32,8 +32,7 @@ public class ProjectController {
 
     @GetMapping
     public ResponseEntity<List<ProjectSummaryResponse>> getMyProjects() {
-        Long userId = 1L; // This should be replaced with actual user ID retrieval logic
-        return ResponseEntity.ok(projectService.getUserProjects(userId));
+        return ResponseEntity.ok(projectService.getUserProjects());
     }
 
     /**
@@ -44,33 +43,30 @@ public class ProjectController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<ProjectResponse> getProjectById(@PathVariable Long id) {
-        Long userId = 1L; // This should be replaced with actual user ID retrieval logic
-        return ResponseEntity.ok(projectService.getUserProjectById(id, userId));
+        return ResponseEntity.ok(projectService.getUserProjectById(id));
     }
 
     /**
      * Creates a new project for the current user.
      *
-     * @param request the ProjectRequest containing project details
+     * @param request the ProjectRequest containing project details and validation
      * @return a ResponseEntity containing the created ProjectResponse
      */
     @PostMapping
     public ResponseEntity<ProjectResponse> createProject(@RequestBody @Valid ProjectRequest request) {
-        Long userId = 1L; // This should be replaced with actual user ID retrieval logic
-        return ResponseEntity.status(HttpStatus.CREATED).body(projectService.createProject(request, userId));
+        return ResponseEntity.status(HttpStatus.CREATED).body(projectService.createProject(request));
     }
 
     /**
      * Updates an existing project for the current user.
      *
      * @param id the ID of the project to update
-     * @param request the ProjectRequest containing updated project details
+     * @param request the ProjectRequest containing updated project details and validation
      * @return a ResponseEntity containing the updated ProjectResponse
      */
     @PatchMapping("/{id}")
     public ResponseEntity<ProjectResponse> updateProject(@PathVariable Long id, @RequestBody @Valid ProjectRequest request) {
-        Long userId = 1L; // This should be replaced with actual user ID retrieval logic
-        return ResponseEntity.ok(projectService.updateProject(id, request, userId));
+        return ResponseEntity.ok(projectService.updateProject(id, request));
     }
 
     /**
@@ -81,8 +77,7 @@ public class ProjectController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
-        Long userId = 1L; // This should be replaced with actual user ID retrieval logic
-        projectService.softDelete(id, userId);
+        projectService.softDelete(id);
         return ResponseEntity.noContent().build();
     }
 }

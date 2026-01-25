@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 /**
- * Repository interface for managing User entities.
+ * <h6>Repository interface for managing User entities.</h6>
  * Provides methods to interact with the database for user data.
  */
 // No implementation needed; Spring Data JPA provides it automatically SimpleJpaRepository

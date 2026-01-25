@@ -5,8 +5,12 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.Instant;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * <h2>Represents a user in the system.</h2>
@@ -23,8 +27,8 @@ import java.time.Instant;
  * <h6>Fields:</h6>
  * <ol>
  *   <li>{@code id}: Primary key, unique identifier for the user.</li>
- *   <li>{@code email}: Unique email address for login and identification.</li>
- *   <li>{@code password_hash}: Hashed password for authentication.</li>
+ *   <li>{@code username}: Unique email address for login and identification.</li>
+ *   <li>{@code password}: Hashed password for authentication.</li>
  *   <li>{@code name}: Display name of the user.</li>
  *   <li>{@code avatar_url}: URL to the user's avatar image.</li>
  *   <li>{@code created_at}: Timestamp when the user was created.</li>
@@ -49,7 +53,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @Builder
 @Table(name = "users") // "user" is a reserved keyword in many SQL databases
-public class User {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -66,4 +70,9 @@ public class User {
     Instant updatedAt;
 
     Instant deletedAt; // soft delete
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
+    }
 }
