@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -23,15 +24,16 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  * <p>
  *     <b>Key Features:</b>
  *     <ul>
- *  *   <li>Disables CSRF protection for stateless REST APIs.</li>
- *  *   <li>Configures session management to be stateless, suitable for JWT or token-based authentication.</li>
- *  *   <li>Permits all HTTP requests to <code>/api/**</code> endpoints.</li>
- *  *   <li>Provides a BCrypt password encoder bean for secure password hashing.</li>
- *  * </ul>
+ *      <li>Disables CSRF protection for stateless REST APIs.</li>
+ *      <li>Configures session management to be stateless, suitable for JWT or token-based authentication.</li>
+ *      <li>Permits all HTTP requests to <code>/api/**</code> endpoints.</li>
+ *      <li>Provides a BCrypt password encoder bean for secure password hashing.</li>
+ *     </ul>
  * </p>
  *
  */
 @Configuration
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class WebSecurityConfig {
 

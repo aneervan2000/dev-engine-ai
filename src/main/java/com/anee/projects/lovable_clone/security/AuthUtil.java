@@ -66,11 +66,17 @@ public class AuthUtil {
         return new JwtUserPrincipal(userId, username, new ArrayList<>());
     }
 
+    /** Retrieves the user ID of the currently authenticated user from the security context.
+     *
+     * @return the user ID of the current user
+     * @throws AuthenticationCredentialsNotFoundException if no JWT is found in the security context
+     */
     public Long getCurrentUserId() {
+        // Get the current authentication from the security context
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if(authentication == null || !(authentication.getPrincipal() instanceof JwtUserPrincipal)) {
             throw new AuthenticationCredentialsNotFoundException("No JWT Found");
         }
-        return ((JwtUserPrincipal) authentication.getPrincipal()).userId();
+        return ((JwtUserPrincipal) authentication.getPrincipal()).userId(); // Extracts the userId from the authenticated principal
     }
 }
