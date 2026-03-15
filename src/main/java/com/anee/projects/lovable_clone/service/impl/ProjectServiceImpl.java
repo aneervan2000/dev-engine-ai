@@ -17,6 +17,7 @@ import com.anee.projects.lovable_clone.security.AuthUtil;
 import com.anee.projects.lovable_clone.service.ProjectService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -89,27 +90,32 @@ public class ProjectServiceImpl implements ProjectService {
 
     /**
      * {@inheritDoc}
-     * @param id the ID of the project
-     * @return ProjectResponse of the project with the given ID
+     *
+     * @annotation PreAuthorize to check if the user has permission to view the project before service method execution
+     * @param projectId the ID of the project
+     * @return the ProjectResponse
      */
     @Override
-    public ProjectResponse getUserProjectById(Long id) {
+    @PreAuthorize("@security.canViewProject(#projectId)")
+    public ProjectResponse getUserProjectById(Long projectId) {
         Long userId = authUtil.getCurrentUserId();
-        Project project = getAccessibleProjectById(id, userId);
+        Project project = getAccessibleProjectById(projectId, userId);
         return projectMapper.toProjectResponse(project);
     }
 
     /**
      * {@inheritDoc}
      *
+     * @annotation PreAuthorize to check if the user has permission to edit the project before service method execution
      * @param id the ID of the project to update
      * @param request the ProjectRequest containing updated project details
      * @return the updated ProjectResponse
      */
     @Override
-    public ProjectResponse updateProject(Long id, ProjectRequest request) {
+    @PreAuthorize("@security.canEditProject(#projectId)")
+    public ProjectResponse updateProject(Long projectId, ProjectRequest request) {
         Long userId = authUtil.getCurrentUserId();
-        Project project = getAccessibleProjectById(id, userId);
+        Project project = getAccessibleProjectById(projectId, userId);
 
         project.setName(request.name());
         project = projectRepository.save(project); // optional, as within a transaction, changes are auto-detected
@@ -124,9 +130,10 @@ public class ProjectServiceImpl implements ProjectService {
      *
      */
     @Override
-    public void softDelete(Long id) {
+    @PreAuthorize("@security.canDeleteProject(#projectId)")
+    public void softDelete(Long projectId) {
         Long userId = authUtil.getCurrentUserId();
-        Project project = getAccessibleProjectById(id, userId);
+        Project project = getAccessibleProjectById(projectId, userId);
 
         project.setDeletedAt(Instant.now());
         projectRepository.save(project);
