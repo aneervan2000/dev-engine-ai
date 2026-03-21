@@ -81,9 +81,6 @@ public class AuthServiceImpl implements AuthService {
 
     /**
      * Authenticates a user and returns an authentication response.
-     * <p>
-     * This method is currently not implemented.
-     * </p>
      *
      * @param request the login request containing user credentials
      * @return an {@link AuthResponse} upon successful authentication
