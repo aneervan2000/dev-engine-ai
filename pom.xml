@@ -102,6 +102,16 @@
         </dependency>
         <!-- End of Mapstruct Dependencies -->
 
+        <!-- Stripe Payment Gateway Dependency -->
+        <!-- Source: https://mvnrepository.com/artifact/com.stripe/stripe-java -->
+        <dependency>
+            <groupId>com.stripe</groupId>
+            <artifactId>stripe-java</artifactId>
+            <version>31.1.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <!-- End of Stripe Dependency -->
+
         <!-- Test Dependencies -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
