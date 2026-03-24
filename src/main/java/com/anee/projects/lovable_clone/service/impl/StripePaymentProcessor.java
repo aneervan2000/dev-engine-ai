@@ -6,6 +6,7 @@ import com.anee.projects.lovable_clone.dto.subscription.PortalResponse;
 import com.anee.projects.lovable_clone.entities.Plan;
 import com.anee.projects.lovable_clone.entities.User;
 import com.anee.projects.lovable_clone.enums.SubscriptionStatus;
+import com.anee.projects.lovable_clone.error.BadRequestException;
 import com.anee.projects.lovable_clone.error.ResourceNotFoundException;
 import com.anee.projects.lovable_clone.repository.PlanRepository;
 import com.anee.projects.lovable_clone.repository.UserRepository;
@@ -98,9 +99,36 @@ public class StripePaymentProcessor implements PaymentProcessor {
 
     @Override
     public PortalResponse openCustomerPortal() {
-        return null;
+
+        User user = getUser(authUtil.getCurrentUserId());
+        String stripeCustomerId = user.getStripeCustomerId();
+
+        if (stripeCustomerId == null || stripeCustomerId.isEmpty()) {
+            throw new BadRequestException("User does not have a Stripe Customer Id, UserId: " + user.getId());
+        }
+
+        try {
+            var portalSession = com.stripe.model.billingportal.Session.create(
+                    com.stripe.param.billingportal.SessionCreateParams.builder()
+                            .setCustomer(stripeCustomerId)
+                            .setReturnUrl(frontendUrl)
+                            .build()
+            );
+
+            return new PortalResponse(portalSession.getUrl());
+        } catch (StripeException e) {
+            throw new RuntimeException(e);
+        }
     }
 
+    /**
+     * This method handles incoming Stripe webhook events related to payments. It processes the event based on its type and updates the subscription status in the system accordingly.
+     * The method takes the event type, the deserialized Stripe object, and any relevant metadata (such as user ID and plan ID) to perform the necessary actions in the system, such as activating subscriptions, updating subscription statuses, canceling subscriptions, renewing subscriptions, or marking subscriptions as past due based on the specific event received from Stripe.
+     *
+     * @param type
+     * @param stripeObject
+     * @param metadata
+     */
     @Override
     public void handleWebhookEvent(String type, StripeObject stripeObject, Map<String, String> metadata) {
         log.debug("Hndling stripe event: {}", type);
@@ -242,12 +270,6 @@ public class StripePaymentProcessor implements PaymentProcessor {
 
      /// UTILITY METHODS
 
-    /**
-     * This method retrieves a user from the database based on the provided user ID.
-     * If the user is not found, it throws a ResourceNotFoundException with a message indicating that the user was not found.
-     * @param userId
-     * @return User object corresponding to the provided user ID
-     */
     private User getUser(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id:", userId.toString()));
