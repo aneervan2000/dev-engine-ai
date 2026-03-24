@@ -8,6 +8,7 @@ import com.anee.projects.lovable_clone.entities.ProjectMember;
 import com.anee.projects.lovable_clone.entities.ProjectMemberId;
 import com.anee.projects.lovable_clone.entities.User;
 import com.anee.projects.lovable_clone.enums.ProjectRole;
+import com.anee.projects.lovable_clone.error.BadRequestException;
 import com.anee.projects.lovable_clone.error.ResourceNotFoundException;
 import com.anee.projects.lovable_clone.mapper.ProjectMapper;
 import com.anee.projects.lovable_clone.repository.ProjectMemberRepository;
@@ -15,6 +16,7 @@ import com.anee.projects.lovable_clone.repository.ProjectRepository;
 import com.anee.projects.lovable_clone.repository.UserRepository;
 import com.anee.projects.lovable_clone.security.AuthUtil;
 import com.anee.projects.lovable_clone.service.ProjectService;
+import com.anee.projects.lovable_clone.service.SubscriptionService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,6 +40,7 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectMapper projectMapper;
     private final ProjectMemberRepository projectMemberRepository;
     private final AuthUtil authUtil;
+    private final SubscriptionService subscriptionService;
 
     /**
      * {@inheritDoc}
@@ -47,6 +50,11 @@ public class ProjectServiceImpl implements ProjectService {
     // Logic to create a new project
     @Override
     public ProjectResponse createProject(ProjectRequest request) {
+
+        if (!subscriptionService.canCreateNewProject()) {
+           throw new BadRequestException("User cannot create a New Proeject with current Plan, Upgrade plan now");
+        }
+
         Long userId = authUtil.getCurrentUserId();
 
         // Using getReferenceById for performance optimization when only the reference is needed not the whole user object
