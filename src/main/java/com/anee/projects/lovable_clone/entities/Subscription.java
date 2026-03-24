@@ -1,10 +1,11 @@
 package com.anee.projects.lovable_clone.entities;
 
 import com.anee.projects.lovable_clone.enums.SubscriptionStatus;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
 /**
@@ -39,21 +40,38 @@ import java.time.Instant;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class Subscription {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
+    // User will only have one active subscription at a time, but can have many inactive subscriptions in the past
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
     User user;
+
+    // A plan can have many subscriptions, but a subscription can only be for one plan
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "plan_id", nullable = false)
     Plan plan;
 
-    String stripeSubscriptionId;
-
+    @Enumerated(value = EnumType.STRING)
     SubscriptionStatus status;
+
+    String stripeSubscriptionId; // can be renamed to gatewaySubscriptionId
 
     Instant currentPeriodStart;
     Instant currentPeriodEnd;
     Boolean cancelAtPeriodEnd = false;
 
+    @CreationTimestamp
     Instant createdAt;
+
+    @UpdateTimestamp
     Instant updatedAt;
 }
