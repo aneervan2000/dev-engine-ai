@@ -41,8 +41,7 @@ public class BillingController {
 
     @GetMapping("/api/me/subscription")
     public ResponseEntity<SubscriptionResponse> getMySubscription() {
-        Long userId = 1L; // Placeholder for authenticated user ID
-        return ResponseEntity.ok(subscriptionService.getCurrentSubscription(userId)); // Placeholder
+        return ResponseEntity.ok(subscriptionService.getCurrentSubscription()); // Placeholder
     }
 
     @PostMapping("/api/payments/checkout")
@@ -52,8 +51,7 @@ public class BillingController {
 
     @PostMapping("/api/payments/portal")
     public ResponseEntity<PortalResponse> openCustomerPortal() {
-        Long userId = 1L;
-        return ResponseEntity.ok(paymentProcessor.openCustomerPortal(userId)); // Placeholder
+        return ResponseEntity.ok(paymentProcessor.openCustomerPortal()); // Placeholder
     }
 
     /**
@@ -70,7 +68,7 @@ public class BillingController {
             @RequestHeader("Stripe-Signature") String sigHeader) {
 
         try {
-            // Verify the webhook signature and construct the event
+            // Verify the webhook signature and construct the event object.
             Event event = Webhook.constructEvent(payload, sigHeader, webhookSecret);
 
             // Deserialize the event data object safely
