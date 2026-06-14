@@ -33,7 +33,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     private final PlanRepository planRepository;
     private final ProjectMemberRepository projectMemberRepository;
 
-    private final int FREE_TIER_PROJECT_ALLOWED = 1;
+    private final int FREE_TIER_PROJECT_ALLOWED = 100;
 
     /**
      * Retrieves the current active subscription for the authenticated user.
