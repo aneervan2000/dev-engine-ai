@@ -59,6 +59,7 @@ public class AiGenerationServiceImpl implements AiGenerationService {
                     });
                 })
                 .doOnError(error -> log.error("Error during streaming for project id: {}", projectId))
+                .filter(response -> response.getResult().getOutput().getText() != null) // filter out responses with null text
                 .map(response -> Objects.requireNonNull(response.getResult().getOutput().getText())); // converts the chat response to text
     }
 
