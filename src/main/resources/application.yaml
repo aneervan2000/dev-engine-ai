@@ -4,9 +4,9 @@ spring:
     description: A clone of the lovable application
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/testDB
-    username: postgres
-    password: anee_admin
+    url: jdbc:postgresql://localhost:9010/pgvector-test?serverTimezone=Asia/Kolkata
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -18,14 +18,35 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
 
+  ai:
+    openai:
+      api-key: ${OPENROUTER_API_KEY}
+      base-url: https://openrouter.ai/api
+      chat:
+        options:
+          model: openai/gpt-oss-120b:free
+          temperature: 0.0
+
 jwt:
-  secret-key: 7d2fc59bfce6fad848fd8e9d42cbbd5b1e0812640dd0cdfc4faa32ca8fe97b65
+  secret-key: ${JWT_SECRET_KEY}
 
 stripe:
   api:
-    secret: sk_test_51TB8lJKXMuyFBUTMM8hx7l6cbXDnyajjCUPjvVi5KsAubRiwYOQcIXMKfrGXUjufdwhhFyS7O7GbRRoe7NINX2DZ00pcjUu2xL
+    secret: ${STRIPE_SECRET_KEY}
   webhook:
-    secret: whsec_9d4c48782aeb9031b2555b155d89734a065237c90b02a60d86981abe55dc862b
+    secret: ${STRIPE_WEBHOOK_SECRET}
 
 client:
-    url: http://localhost:8080
+  url: http://localhost:8080
+
+logging:
+  level:
+    org.springframework.ai:
+        chat.client: DEBUG
+    #org.springframework.ai.openai: DEBUG
+
+minio:
+    url: http://localhost:9000
+    access-key: minioadmin
+    secret-key: minioadmin123
+    project-bucket: lovable
