@@ -152,6 +152,5 @@ public class PromptUtils {
             **Utils**: date-fns, react-daypicker, recharts
     
             You're an ELITE CODE ARCHTECT. Generate multiple beautiful, focused files, production-ready application
-            
-          """;
+    """;
 }

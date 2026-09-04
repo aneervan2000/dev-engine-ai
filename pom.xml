@@ -30,6 +30,7 @@
 		<java.version>21</java.version>
         <org.mapstruct.version>1.6.3</org.mapstruct.version>
 		<spring-ai.version>2.0.0-M1</spring-ai.version>
+		<user.timezone>Asia/Kolkata</user.timezone>
 	</properties>
 	<dependencies>
 
@@ -122,6 +123,11 @@
 			<groupId>io.minio</groupId>
 			<artifactId>minio</artifactId>
 			<version>8.6.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.squareup.okhttp3</groupId>
+			<artifactId>okhttp-urlconnection</artifactId>
+			<version>5.3.2</version>
 		</dependency>
 		<!-- End of Spring AI Dependency -->
 
