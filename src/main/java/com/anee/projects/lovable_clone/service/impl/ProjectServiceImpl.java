@@ -16,6 +16,7 @@ import com.anee.projects.lovable_clone.repository.ProjectRepository;
 import com.anee.projects.lovable_clone.repository.UserRepository;
 import com.anee.projects.lovable_clone.security.AuthUtil;
 import com.anee.projects.lovable_clone.service.ProjectService;
+import com.anee.projects.lovable_clone.service.ProjectTemplateService;
 import com.anee.projects.lovable_clone.service.SubscriptionService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +42,7 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectMemberRepository projectMemberRepository;
     private final AuthUtil authUtil;
     private final SubscriptionService subscriptionService;
+    private final ProjectTemplateService projectTemplateService;
 
     /**
      * {@inheritDoc}
@@ -80,6 +82,8 @@ public class ProjectServiceImpl implements ProjectService {
                 .project(project)
                 .build();
         projectMemberRepository.save(projectMember);
+
+        projectTemplateService.initializeProjectFromTemplate(project.getId());
 
         return projectMapper.toProjectResponse(project);
     }

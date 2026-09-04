@@ -4,7 +4,7 @@ spring:
     description: A clone of the lovable application
 
   datasource:
-    url: jdbc:postgresql://localhost:9010/pgvector-test?serverTimezone=Asia/Kolkata
+    url: jdbc:postgresql://localhost:9010/pgvector-test
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
@@ -16,7 +16,9 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
+        format_sql: false
+        jdbc:
+          time_zone: UTC
 
   ai:
     openai:
@@ -24,7 +26,8 @@ spring:
       base-url: https://openrouter.ai/api
       chat:
         options:
-          model: openai/gpt-oss-120b:free
+#          model: nvidia/nemotron-3-super-120b-a12b:free
+          model: openrouter/free
           temperature: 0.0
 
 jwt:
