@@ -19,6 +19,59 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+
+/**
+ * <h2>FileTreeContextAdvisor</h2>
+ *
+ * <p>Acts as a {@code StreamAdvisor} that enriches incoming {@link ChatClientRequest}
+ * prompts with the repository file tree for a project so downstream language models
+ * receive workspace context before generating responses.</p>
+ *
+ * <h3>Behavior</h3>
+ * <ul>
+ *   <li>Reads a numeric {@code projectId} from {@code request.context()} (defaults to 0).</li>
+ *   <li>Extracts any existing system message from the original prompt and preserves it.</li>
+ *   <li>Collects all non-system instructions (user/assistant messages) and defers them.</li>
+ *   <li>Retrieves the project's file tree from {@link com.anee.projects.lovable_clone.service.ProjectFileService}.</li>
+ *   <li>Creates a new system-level message containing a textual representation of the file tree
+ *       and injects it immediately after the preserved system message (if present).</li>
+ *   <li>Rebuilds the prompt (preserving prompt options) and returns a mutated request that
+ *       is forwarded to the next advisor in the chain.</li>
+ * </ul>
+ *
+ * <h3>Method summaries</h3>
+ * <ul>
+ *   <li>{@link #adviseStream(ChatClientRequest, StreamAdvisorChain)}:
+ *       Entry point called by the advising pipeline. Augments the request and delegates to
+ *       {@code streamAdvisorChain.nextStream(...)}.</li>
+ *   <li>{@link #augmentRequestWithFileTree(ChatClientRequest, Long)}:
+ *       Performs the prompt reconstruction and file-tree injection.</li>
+ *   <li>{@link #getName()} / {@link #getOrder()}:
+ *       Return advisor identity and ordering metadata used by the advisor chain.</li>
+ * </ul>
+ *
+ * <h3>Thread-safety and side effects</h3>
+ * <p>The advisor is effectively stateless: it holds a final reference to
+ * {@link com.anee.projects.lovable_clone.service.ProjectFileService} but does not mutate
+ * internal state. It is safe for concurrent use provided {@code ProjectFileService} itself
+ * is thread-safe.</p>
+ *
+ * <h3>Error handling</h3>
+ * <p>Any exceptions thrown while retrieving the file tree or mutating the request are not
+ * caught here and will propagate to the caller. If {@code projectId} is missing or invalid,
+ * a default of {@code 0} is used and behavior depends on
+ * {@code ProjectFileService#getFileTree} semantics (e.g., returning an empty list).</p>
+ *
+ * <h3>Resulting prompt structure</h3>
+ * <pre>
+ * [ optional original SYSTEM message ]
+ * [ injected SYSTEM message: "\n\n ----- FILE TREE ----- \n" + fileTree.toString() ]
+ * [ original non-system messages (user/assistant) ]
+ * </pre>
+ *
+ * @see com.anee.projects.lovable_clone.service.ProjectFileService
+ * @since 1.0
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -26,6 +79,20 @@ public class FileTreeContextAdvisor implements StreamAdvisor {
 
     private final ProjectFileService projectFileService;
 
+    /**
+ * Augments an incoming {@link ChatClientRequest} with repository file-tree context and
+ * forwards the mutated request to the next advisor in the chain.
+ *
+ * <p>Reads a numeric {@code projectId} from {@code request.context()} (defaults to {@code 0}),
+ * delegates to {@link #augmentRequestWithFileTree(ChatClientRequest, Long)} to rebuild the prompt
+ * (injecting a system-level file-tree message), then calls {@code streamAdvisorChain.nextStream(...)}.</p>
+ *
+ * @param request the incoming chat request whose prompt will be enriched with file-tree context
+ * @param streamAdvisorChain the advisor chain used to forward the augmented request
+ * @return a {@code Flux<ChatClientResponse>} produced by the downstream advisor
+ * @throws NumberFormatException if the {@code projectId} context value is not parseable as a long
+ * @throws RuntimeException if file-tree retrieval or request mutation fails (propagated to caller)
+ */
     @Override
     public Flux<ChatClientResponse> adviseStream(ChatClientRequest request, StreamAdvisorChain streamAdvisorChain) {
         Map<String, Object> context = request.context();
@@ -36,7 +103,26 @@ public class FileTreeContextAdvisor implements StreamAdvisor {
         return streamAdvisorChain.nextStream(augmentedChatClientRequest);
     }
 
-    /**     * Augments the incoming chat request with the current project's file tree so the     * language model has repository context before producing a response.     *     * <p>This method preserves any existing system message from the original prompt,     * isolates the remaining non-system instructions, and then retrieves the project     * structure from {@link ProjectFileService}. The file tree is converted into a     * textual system-level context block and appended as an additional instruction so     * the downstream model can reason about the workspace layout while responding.</p>     *     * @param request the original chat request whose prompt should be enriched with     *                repository context     * @param projectId the identifier of the project whose file tree is to be included     * @return a new chat request containing the original instructions and the injected     * file tree context     */
+ /**
+ * Injects the project's file tree into the request prompt as a new system message.
+ *
+  * <p>
+ * What it does (step‑by‑step, simply):
+  * <ol>
+ *   <li>Reads the current prompt messages.</li>
+ *   <li>Keeps the first system message found (if any).</li>
+ *   <li>Collects all non-system messages to append later.</li>
+ *   <li>Fetches the project's file tree using the provided projectId.</li>
+ *   <li>Creates a new system message containing a textual representation of that file tree.</li>
+ * <li>Rebuilds the prompt so it contains: [original system?] -> [file-tree system] -> [other messages].</li>
+ * <li>Returns a mutated ChatClientRequest with the new Prompt (original prompt options are preserved).</li>
+  * </ol>
+  * </p>
+ *
+ * Important notes:
+ * - Exceptions from parsing projectId or fetching the file tree are not handled here and will propagate.
+ * - This method preserves the order of non-system messages.
+ */
     private ChatClientRequest augmentRequestWithFileTree(ChatClientRequest request, Long projectId) {
 
         List<Message> incomingMessages = request.prompt().getInstructions();
@@ -63,9 +149,9 @@ public class FileTreeContextAdvisor implements StreamAdvisor {
 
         allMessages.addAll(userMessages);
 
-        return request.mutate()
-                .prompt(new Prompt(allMessages, request.prompt().getOptions()))
-                .build();
+       return request.mutate()
+               .prompt(new Prompt(allMessages, request.prompt().getOptions()))
+               .build();
     }
 
     @Override

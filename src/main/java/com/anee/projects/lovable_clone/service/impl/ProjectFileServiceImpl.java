@@ -43,7 +43,6 @@ public class ProjectFileServiceImpl implements ProjectFileService {
 
     @Override
     public List<FileNode> getFileTree(Long projectId) {
-
         List<ProjectFile> projectFileList = projectFileRepository.findByProjectId(projectId);
         return projectFileMapper.toListOfFileNode(projectFileList);
     }
@@ -68,7 +67,7 @@ public class ProjectFileServiceImpl implements ProjectFileService {
     }
 
     @Override
-    public void saveFile(Long projectId, String path, String fileContent) {
+    public void saveFile(Long projectId, String path, String content) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: ", projectId.toString()));
 
@@ -76,7 +75,7 @@ public class ProjectFileServiceImpl implements ProjectFileService {
         String objectKey = projectId + "/" + cleanPath;
 
         try {
-            byte[] contentBytes = fileContent.getBytes(StandardCharsets.UTF_8);
+            byte[] contentBytes = content.getBytes(StandardCharsets.UTF_8);
             InputStream inputStream = new ByteArrayInputStream(contentBytes);
             // saving the file content
             minioClient.putObject(

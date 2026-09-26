@@ -16,6 +16,32 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Service implementation that initializes a project from a stored template in MinIO.
+ * <p>
+ * Behavior summary:
+ * <ol>
+ *   <li>Look up the {@code Project} by id. If not found, throw {@code ResourceNotFoundException}.</li>
+ *   <li>List objects in the template bucket (\`starter-projects\`) under the configured template prefix
+ *       (\`react-vite-tailwind-daisyui-starter/\`) recursively.</li>
+ *   <li>For each template object:
+ *       <ul>
+ *         <li>Compute a relative path by removing the template prefix.</li>
+ *         <li>Copy the object to the target bucket (\`lovable\`) at key {@code "<projectId>/<relative-path>" }.</li>
+ *         <li>Create a {@code ProjectFile} metadata record and collect it for persistence.</li>
+ *       </ul>
+ *   </li>
+ *   <li>Persist all collected {@code ProjectFile} records via {@code ProjectFileRepository}.</li>
+ * </ol>
+ * <p>
+ * Important details:
+ * <ul>
+ *   <li>External I/O (MinIO) is performed per-file; failures may leave partial state in the target bucket.</li>
+ *   <li>Exceptions from listing/copying are propagated as {@code RuntimeException} with a generic message.</li>
+ *   <li>This implementation assumes the template bucket and target bucket names are valid and accessible
+ *       by the configured {@code MinioClient}.</li>
+ * </ul>
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -28,6 +54,44 @@ public class ProjectTemplateServiceImpl implements ProjectTemplateService {
     private static final String TEMPLATE_BUCKET = "starter-projects";
     private static final String TARGET_BUCKET = "lovable";
     private static final String TEMPLATE_NAME = "react-vite-tailwind-daisyui-starter";
+
+    /**
+ * Initialize a project from a stored MinIO template.
+ *
+ * <p>This method performs the following steps:
+ * <ol>
+ *   <li>Look up the {@code Project} by {@code projectId}. If not found, a {@code ResourceNotFoundException} is thrown.</li>
+ *   <li>List all objects in the MinIO bucket defined by {@code TEMPLATE_BUCKET} under the prefix
+ *       {@code TEMPLATE_NAME + "/"} recursively using {@code minioClient.listObjects(...)}.</li>
+ *   <li>For each listed object:
+ *     <ul>
+ *       <li>Compute a relative path {@code cleanPath} by removing the template prefix.</li>
+ *       <li>Compose the destination object key as {@code projectId + "/" + cleanPath}.</li>
+ *       <li>Copy the object from the template bucket to the {@code TARGET_BUCKET} at the destination key
+ *           with {@code minioClient.copyObject(...)}.</li>
+ *       <li>Create a {@code ProjectFile} metadata record (linking to the {@code Project}, storing the relative
+ *           path, MinIO object key and timestamps) and collect it for persistence.</li>
+ *     </ul>
+ *   </li>
+ *   <li>Persist all collected {@code ProjectFile} records in a single batch via
+ *       {@code projectFileRepository.saveAll(...)}.</li>
+ * </ol>
+ *
+ * <p>Important implementation details and behavior:
+ * <ul>
+ *   <li>All MinIO operations are performed per-file; a failure during processing may leave partially copied
+ *       objects in the target bucket. There is no rollback of copied objects in this method.</li>
+ *   <li>Any exception thrown while listing or copying objects (or while building metadata) is caught and
+ *       rethrown as a {@code RuntimeException} with the original exception as the cause.</li>
+ *   <li>Timestamps for {@code createdAt} and {@code updatedAt} are set to {@code Instant.now()} at the time
+ *       each metadata record is created.</li>
+ *   <li>This implementation assumes the configured {@code MinioClient} has access to the template and target buckets.</li>
+ * </ul>
+ *
+ * @param projectId the id of the project to initialize from the template
+ * @throws ResourceNotFoundException if no project exists with the provided {@code projectId}
+ * @throws RuntimeException if listing or copying objects fails (original exception is wrapped)
+ */
 
     @Override
     public void initializeProjectFromTemplate(Long projectId) {
