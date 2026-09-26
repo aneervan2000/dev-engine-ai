@@ -7,6 +7,7 @@ import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
+import java.util.List;
 
 /**
  * <h2>Represents a single message within a chat session.</h2>
@@ -57,18 +58,20 @@ public class ChatMessage {
             @JoinColumn(name = "project_id", referencedColumnName = "project_id", nullable = false),
             @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false)
     })
-    ChatSession chatSession;
+    ChatSession chatSession; // A particular chat session can have many chat messages
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     MessageRole role; // USER, ASSISTANT
 
-    @Column(columnDefinition = "text",  nullable = false)
-    String content;
+    @OneToMany(mappedBy = "chatMessage", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OrderBy("sequenceOrder ASC")
+    List<ChatEvent> events;  // empty unless ASSISTANT role
+
+    @Column(columnDefinition = "text")
+    String content; // NULL unless USER role
 
     Integer tokensUsed = 0;
-
-//    String toolCalls; // JSON Array of Tools called
 
     @CreationTimestamp
     Instant createdAt;
